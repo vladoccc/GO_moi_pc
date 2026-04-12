@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math"
 )
@@ -8,17 +9,30 @@ import (
 const IMTPower = 2
 
 func main() {
-	for i := 0; i < 10; i++ {
-		if i == 5 {
+	defer func() {
+		r := recover()
+		if r != nil {
+			fmt.Println("Recover ", r)
+		}
+	}()
+	fmt.Println(`___Калькулятор индекса массы тела___`)
+	for {
+		userKg, userHeight := getUserInput()
+		IMT, err := calculateIMT(userKg, userHeight)
+		if err != nil {
+			panic("Не заданы параметры для рассчета")
+		}
+		outputResult(IMT)
+		isRepeatCalculation := checkRepeatCalculation()
+		if !isRepeatCalculation {
 			break
 		}
-		fmt.Printf("%d\n", i)
 	}
+}
 
-	fmt.Println(`___Калькулятор индекса массы тела___`)
-	userKg, userHeight := getUserInput()
-	IMT := calculateIMT(userKg, userHeight)
-	outputResult(IMT)
+func outputResult(IMT float64) {
+	result := fmt.Sprintf("Ваш индекс:  %.0f", IMT)
+	fmt.Println(result)
 	switch {
 	case IMT < 16:
 		fmt.Println("У вас сильный дефицит массы")
@@ -33,14 +47,12 @@ func main() {
 	}
 }
 
-func outputResult(IMT float64) {
-	result := fmt.Sprintf("Ваш индекс:  %.0f", IMT)
-	fmt.Println(result)
-}
-
-func calculateIMT(userKG float64, userHeight float64) float64 {
+func calculateIMT(userKG float64, userHeight float64) (float64, error) {
+	if userKG <= 0 || userHeight <= 0 {
+		return 0, errors.New("Не указан вес или высота")
+	}
 	IMT := userKG / math.Pow(userHeight/100, IMTPower)
-	return IMT
+	return IMT, nil
 }
 
 func getUserInput() (float64, float64) {
@@ -51,4 +63,14 @@ func getUserInput() (float64, float64) {
 	fmt.Print("Введите вес: ")
 	fmt.Scan(&userKg)
 	return userKg, userHeight
+}
+
+func checkRepeatCalculation() bool {
+	var userChoise string
+	fmt.Print("Вы хотите рассчитать еще (Y/N) ? ")
+	fmt.Scan(&userChoise)
+	if userChoise == "Y" || userChoise == "y" {
+		return true
+	}
+	return false
 }
