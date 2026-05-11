@@ -1,7 +1,6 @@
 package account
 
 import (
-	"encoding/json"
 	"errors"
 	"math/rand/v2"
 	"net/url"
@@ -16,24 +15,17 @@ type Account struct {
 	Login     string    `json:"login"`
 	Password  string    `json:"password"`
 	Url       string    `json:"url"`
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"` 
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func (acc *Account) OutputPassword() {
+func (acc *Account) Output() {
 	color.Cyan(acc.Login)
-	color.Blue(acc.Password)
+	color.Cyan(acc.Password)
+	color.Cyan(acc.Url)
 }
 
-func (acc *Account) ToBytes() ([]byte, error) {
-	file, err := json.Marshal(acc)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
-}
-
-func (acc *Account) generatePassord(n int) {
+func (acc *Account) generatePassword(n int) {
 	result := make([]rune, n)
 	for i := range result {
 		result[i] = letterRune[rand.IntN(len(letterRune))]
@@ -43,11 +35,11 @@ func (acc *Account) generatePassord(n int) {
 
 func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
-		return nil, errors.New("Invalid login")
+		return nil, errors.New("INVALID_LOGIN")
 	}
 	_, err := url.ParseRequestURI(urlString)
 	if err != nil {
-		return nil, errors.New("Invalid URL")
+		return nil, errors.New("INVALID_URL")
 	}
 	newAcc := &Account{
 		CreatedAt: time.Now(),
@@ -57,7 +49,7 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 		Url:       urlString,
 	}
 	if password == "" {
-		newAcc.generatePassord(10)
+		newAcc.generatePassword(10)
 	}
 	return newAcc, nil
 }
