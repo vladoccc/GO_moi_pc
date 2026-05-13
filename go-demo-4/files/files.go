@@ -3,8 +3,6 @@ package files
 import (
 	"demo/password/output"
 	"os"
-
-	"github.com/fatih/color"
 )
 
 type JsonDb struct {
@@ -38,5 +36,4 @@ func (db *JsonDb) Write(contant []byte) {
 		output.PrintError(err)
 		return
 	}
-	color.Green("Запись успешна")
 }
